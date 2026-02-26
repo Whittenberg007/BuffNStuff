@@ -120,6 +120,67 @@ export async function updateTemplate(
   return data as WorkoutTemplate;
 }
 
+export async function updateTemplateWithExercises(
+  id: string,
+  params: {
+    name: string;
+    splitType: string;
+    trainingStyle: string;
+    description?: string;
+    exercises: Array<{
+      exerciseId: string;
+      targetSets: number;
+      targetReps: number;
+      targetWeight?: number;
+      setType?: string;
+      notes?: string;
+    }>;
+  }
+): Promise<WorkoutTemplate> {
+  const supabase = createClient();
+
+  // Update template metadata
+  const { data: template, error: tError } = await supabase
+    .from("workout_templates")
+    .update({
+      name: params.name,
+      split_type: params.splitType,
+      training_style: params.trainingStyle,
+      description: params.description || null,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+  if (tError) throw tError;
+
+  // Delete existing exercises and replace with new list
+  const { error: delError } = await supabase
+    .from("template_exercises")
+    .delete()
+    .eq("template_id", id);
+  if (delError) throw delError;
+
+  if (params.exercises.length > 0) {
+    const templateExercises = params.exercises.map((ex, index) => ({
+      template_id: id,
+      exercise_id: ex.exerciseId,
+      target_sets: ex.targetSets,
+      target_reps: ex.targetReps,
+      target_weight: ex.targetWeight || null,
+      sort_order: index,
+      set_type: ex.setType || "working",
+      notes: ex.notes || null,
+    }));
+
+    const { error: eError } = await supabase
+      .from("template_exercises")
+      .insert(templateExercises);
+    if (eError) throw eError;
+  }
+
+  return template as WorkoutTemplate;
+}
+
 export async function deleteTemplate(id: string): Promise<void> {
   const supabase = createClient();
   // Template exercises cascade delete via FK
