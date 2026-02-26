@@ -5,6 +5,9 @@ import { WeeklySummary } from "@/components/dashboard/weekly-summary";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
 import { RecentPRs } from "@/components/dashboard/recent-prs";
 import { BadgesDisplay } from "@/components/dashboard/badges-display";
+import { RotationSuggestions } from "@/components/training/rotation-suggestions";
+import { PlateauAlerts } from "@/components/training/plateau-alerts";
+import { VolumeLandmarks } from "@/components/training/volume-landmarks";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -33,6 +36,12 @@ export default function DashboardPage() {
       </div>
 
       <BadgesDisplay />
+
+      <RotationSuggestions />
+
+      <PlateauAlerts />
+
+      <VolumeLandmarks />
     </div>
   );
 }
