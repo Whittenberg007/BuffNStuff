@@ -4,6 +4,7 @@ import { TodayWorkout } from "@/components/dashboard/today-workout";
 import { WeeklySummary } from "@/components/dashboard/weekly-summary";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
 import { RecentPRs } from "@/components/dashboard/recent-prs";
+import { BadgesDisplay } from "@/components/dashboard/badges-display";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -30,6 +31,8 @@ export default function DashboardPage() {
         <StreakCounter />
         <RecentPRs />
       </div>
+
+      <BadgesDisplay />
     </div>
   );
 }
