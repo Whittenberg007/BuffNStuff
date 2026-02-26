@@ -7,6 +7,7 @@ import { ExerciseProgressionChart } from "@/components/progress/exercise-progres
 import { VolumeTrendsChart } from "@/components/progress/volume-trends-chart";
 import { MuscleBalanceRadar } from "@/components/progress/muscle-balance-radar";
 import { FrequencyHeatmap } from "@/components/progress/frequency-heatmap";
+import { GoalsList } from "@/components/goals/goals-list";
 import { getWeightHistory, getWeightTrend } from "@/lib/database/weight";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { WeightEntry } from "@/types";
@@ -54,6 +55,7 @@ export default function ProgressPage() {
           <TabsTrigger value="exercises">Exercises</TabsTrigger>
           <TabsTrigger value="volume">Volume</TabsTrigger>
           <TabsTrigger value="frequency">Frequency</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 space-y-6">
@@ -82,6 +84,10 @@ export default function ProgressPage() {
 
         <TabsContent value="frequency" className="mt-4 space-y-6">
           <FrequencyHeatmap />
+        </TabsContent>
+
+        <TabsContent value="goals" className="mt-4 space-y-6">
+          <GoalsList />
         </TabsContent>
       </Tabs>
     </div>
