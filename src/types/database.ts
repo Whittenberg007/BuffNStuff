@@ -184,3 +184,55 @@ export interface UserSettings {
   rotation_mode: RotationMode;
   updated_at: string;
 }
+
+export type FastingProtocol = "12:12" | "14:10" | "16:8" | "18:6" | "20:4" | "23:1" | "custom";
+
+export interface MealPlan {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  eating_window_start: string | null;
+  eating_window_end: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MealPlanItem {
+  id: string;
+  plan_id: string;
+  meal_name: string;
+  target_time: string | null;
+  food_item: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+  serving_size: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface FastingSettings {
+  id: string;
+  user_id: string;
+  protocol: FastingProtocol;
+  target_fast_hours: number;
+  eating_window_start: string;
+  eating_window_end: string;
+  notifications_enabled: boolean;
+  updated_at: string;
+}
+
+export interface FastingLog {
+  id: string;
+  user_id: string;
+  date: string;
+  eating_start: string | null;
+  eating_end: string | null;
+  target_fast_hours: number;
+  achieved_fast_hours: number | null;
+  hit_target: boolean | null;
+  notes: string | null;
+  created_at: string;
+}
