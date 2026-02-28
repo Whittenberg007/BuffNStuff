@@ -11,8 +11,8 @@ export function CapacitorAuthGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!isNative()) {
-      // On web, middleware handles auth — skip client-side check
-      setChecked(true);
+      // On web, middleware handles auth — no client-side check needed
+      queueMicrotask(() => setChecked(true));
       return;
     }
 
