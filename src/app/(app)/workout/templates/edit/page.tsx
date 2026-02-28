@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getTemplateWithExercises } from "@/lib/database/templates";
@@ -9,7 +9,8 @@ import { TemplateBuilder } from "@/components/workout/template-builder";
 import type { WorkoutTemplate, TemplateExercise } from "@/types";
 
 export default function EditTemplatePage() {
-  const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const router = useRouter();
 
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
@@ -18,11 +19,17 @@ export default function EditTemplatePage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (!id) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function load() {
       try {
-        const data = await getTemplateWithExercises(params.id);
+        const data = await getTemplateWithExercises(id!);
         if (!cancelled) {
           setTemplate(data.template);
           setExercises(data.exercises);
@@ -38,7 +45,7 @@ export default function EditTemplatePage() {
     return () => {
       cancelled = true;
     };
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (

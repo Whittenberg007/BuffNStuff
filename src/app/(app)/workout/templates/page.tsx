@@ -159,7 +159,7 @@ export default function TemplatesPage() {
                     size="sm"
                     className="flex-1"
                     onClick={() =>
-                      router.push(`/workout/templates/${template.id}`)
+                      router.push(`/workout/templates/edit?id=${template.id}`)
                     }
                   >
                     <Edit className="size-3.5" /> Edit
