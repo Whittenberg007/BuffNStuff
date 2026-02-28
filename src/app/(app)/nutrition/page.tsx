@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Star, UtensilsCrossed, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +31,11 @@ import {
   deleteFavorite,
 } from "@/lib/database/nutrition";
 import type { NutritionEntry, NutritionFavorite } from "@/types";
+import { FastingTimer } from "@/components/nutrition/fasting-timer";
+import { FastingStreak } from "@/components/nutrition/fasting-streak";
+import { saveDayAsPlan } from "@/lib/database/meal-plans";
+import Link from "next/link";
+import { toast } from "sonner";
 
 // Default targets — will be overridden by user settings when available
 const DEFAULT_TARGETS = {
@@ -206,6 +211,9 @@ export default function NutritionPage() {
         </p>
       </div>
 
+      {/* Fasting Timer */}
+      <FastingTimer />
+
       {/* Date navigator */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousDay}>
@@ -266,6 +274,36 @@ export default function NutritionPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Fasting streak + Meal plan actions */}
+      <div className="flex items-center justify-between">
+        <FastingStreak />
+        <div className="flex gap-2">
+          <Link href="/nutrition/plans">
+            <Button variant="outline" size="sm" className="gap-1">
+              <UtensilsCrossed className="size-3.5" />
+              Plans
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={async () => {
+              try {
+                const planName = `${displayDate} Plan`;
+                await saveDayAsPlan(date, planName);
+                toast.success("Day saved as meal plan!");
+              } catch {
+                toast.error("Failed to save as plan (no entries?)");
+              }
+            }}
+          >
+            <Save className="size-3.5" />
+            Save Day
+          </Button>
+        </div>
+      </div>
 
       {/* Edit dialog */}
       <Dialog
