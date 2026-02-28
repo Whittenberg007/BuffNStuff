@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { logSet } from "@/lib/database/workouts";
 import { getLastSessionForExercise } from "@/lib/database/workouts";
 import type { Exercise, WorkoutSet, SetType } from "@/types";
+import { hapticNotification } from "@/lib/capacitor/haptics";
 
 const SET_TYPES: { value: SetType; label: string }[] = [
   { value: "working", label: "Working" },
@@ -98,6 +99,7 @@ export function SetLogger({
       });
 
       onSetLogged(newSet);
+      hapticNotification("success");
 
       // Brief success feedback
       setShowSuccess(true);

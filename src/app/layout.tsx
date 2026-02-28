@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
+import { NativeInit } from "@/components/capacitor/native-init";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-100 antialiased`}
       >
+        <NativeInit />
         <ServiceWorkerRegister />
         {children}
         <OfflineIndicator />

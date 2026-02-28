@@ -1,14 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+export const dynamic = "force-static";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-
-  if (code) {
-    const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
-  }
-
-  return NextResponse.redirect(origin);
+export async function GET() {
+  // This route is a placeholder for OAuth callback flows.
+  // Currently the app uses email/password auth only.
+  // For Capacitor static export, this must be statically renderable.
+  // Native apps handle auth via the client-side auth guard.
+  return new Response("OK", { status: 200 });
 }
