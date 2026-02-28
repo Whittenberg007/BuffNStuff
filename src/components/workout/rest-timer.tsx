@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Pause, Play, RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { hapticNotification } from "@/lib/capacitor/haptics";
 
 const PRESETS = [60, 90, 120, 180, 300] as const;
 
@@ -57,6 +58,7 @@ export function RestTimer({
           if (prev <= 1) {
             setIsRunning(false);
             onComplete?.();
+            hapticNotification("warning");
             return 0;
           }
           return prev - 1;
