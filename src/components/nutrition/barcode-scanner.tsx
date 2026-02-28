@@ -19,23 +19,20 @@ export function BarcodeScanner({ onProductFound }: BarcodeScannerProps) {
   async function handleScan() {
     setIsScanning(true);
     try {
-      const { BarcodeScanner: Scanner } = await import("@capacitor/barcode-scanner");
+      const {
+        CapacitorBarcodeScanner,
+        CapacitorBarcodeScannerTypeHint,
+      } = await import("@capacitor/barcode-scanner");
 
-      const permission = await Scanner.checkPermission({ force: true });
-      if (!permission.granted) {
-        toast.error("Camera permission required for barcode scanning");
+      const result = await CapacitorBarcodeScanner.scanBarcode({
+        hint: CapacitorBarcodeScannerTypeHint.ALL,
+      });
+
+      if (!result.ScanResult) {
         return;
       }
 
-      document.body.classList.add("barcode-scanner-active");
-      const result = await Scanner.startScan();
-      document.body.classList.remove("barcode-scanner-active");
-
-      if (!result.hasContent || !result.content) {
-        return;
-      }
-
-      const product = await lookupBarcode(result.content);
+      const product = await lookupBarcode(result.ScanResult);
       if (product) {
         onProductFound(product);
         toast.success(`Found: ${product.name}`);
@@ -43,7 +40,6 @@ export function BarcodeScanner({ onProductFound }: BarcodeScannerProps) {
         toast.error("Product not found — enter manually");
       }
     } catch {
-      document.body.classList.remove("barcode-scanner-active");
       toast.error("Scan failed — try again");
     } finally {
       setIsScanning(false);

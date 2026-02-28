@@ -122,11 +122,3 @@
     @apply bg-background text-foreground;
     }
 }
-
-/* Barcode scanner overlay — makes webview transparent for camera */
-body.barcode-scanner-active {
-  background: transparent !important;
-}
-body.barcode-scanner-active * {
-  visibility: hidden;
-}
