@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { UserCircle, Search, Bell } from "lucide-react";
+import { UserCircle, Search, Bell, Swords, Trophy } from "lucide-react";
 import { ActivityFeed } from "@/components/community/activity-feed";
 import { getMyProfile } from "@/lib/database/profiles";
 import { getPendingRequestCount } from "@/lib/database/follows";
@@ -80,6 +80,16 @@ export default function CommunityPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Link href="/community/challenges">
+            <Button variant="ghost" size="icon">
+              <Swords className="size-5" />
+            </Button>
+          </Link>
+          <Link href="/community/leaderboards">
+            <Button variant="ghost" size="icon">
+              <Trophy className="size-5" />
+            </Button>
+          </Link>
           <Link href="/community/requests">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="size-5" />

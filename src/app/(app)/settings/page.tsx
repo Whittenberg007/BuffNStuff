@@ -8,20 +8,27 @@ import { NutritionSettings } from "@/components/settings/nutrition-settings";
 import { TDEECalculator } from "@/components/settings/tdee-calculator";
 import { FastingSettings } from "@/components/settings/fasting-settings";
 import { HealthSyncSettings } from "@/components/settings/health-sync-settings";
+import { NotificationPreferencesPanel } from "@/components/notifications/notification-preferences";
+import { getNotificationPreferences } from "@/lib/database/notifications";
 import Link from "next/link";
 import { Database } from "lucide-react";
-import type { UserSettings } from "@/types";
+import type { UserSettings, NotificationPreferences } from "@/types";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSettings() {
       try {
-        const data = await getSettings();
+        const [data, prefs] = await Promise.all([
+          getSettings(),
+          getNotificationPreferences(),
+        ]);
         setSettings(data);
+        setNotifPrefs(prefs);
       } catch (err) {
         console.error("Failed to load settings:", err);
         setError("Failed to load settings. Please try again.");
@@ -97,6 +104,13 @@ export default function SettingsPage() {
       </Link>
 
       <HealthSyncSettings />
+
+      {notifPrefs && (
+        <NotificationPreferencesPanel
+          preferences={notifPrefs}
+          onUpdated={setNotifPrefs}
+        />
+      )}
 
       <TDEECalculator
         settings={settings}

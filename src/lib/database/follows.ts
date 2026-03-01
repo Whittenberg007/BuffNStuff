@@ -62,12 +62,36 @@ export async function unfollowUser(targetProfileId: string): Promise<void> {
 export async function acceptFollowRequest(followId: string): Promise<void> {
   const supabase = createClient();
 
+  // Fetch the follow to get the follower's profile info
+  const { data: follow } = await supabase
+    .from("follows")
+    .select("follower_id, follower:user_profiles!follows_follower_id_fkey(user_id)")
+    .eq("id", followId)
+    .single();
+
   const { error } = await supabase
     .from("follows")
     .update({ status: "accepted" })
     .eq("id", followId);
 
   if (error) throw error;
+
+  // Notify the follower that their request was accepted
+  try {
+    const followerUserId = (follow?.follower as unknown as { user_id: string })?.user_id;
+    if (followerUserId) {
+      const { createNotification } = await import("@/lib/database/notifications");
+      await createNotification({
+        userId: followerUserId,
+        type: "follow_accepted",
+        title: "Follow request accepted!",
+        body: "You can now see their activity.",
+        data: { link: "/community" },
+      });
+    }
+  } catch {
+    // Notification should never block follow accept
+  }
 }
 
 export async function rejectFollowRequest(followId: string): Promise<void> {
