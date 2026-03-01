@@ -6,6 +6,7 @@ import { ProfileSettings } from "@/components/settings/profile-settings";
 import { TrainingSettings } from "@/components/settings/training-settings";
 import { NutritionSettings } from "@/components/settings/nutrition-settings";
 import { TDEECalculator } from "@/components/settings/tdee-calculator";
+import { FastingSettings } from "@/components/settings/fasting-settings";
 import type { UserSettings } from "@/types";
 
 export default function SettingsPage() {
@@ -75,6 +76,8 @@ export default function SettingsPage() {
         settings={settings}
         onSettingsUpdated={handleSettingsUpdated}
       />
+
+      <FastingSettings />
 
       <TDEECalculator
         settings={settings}

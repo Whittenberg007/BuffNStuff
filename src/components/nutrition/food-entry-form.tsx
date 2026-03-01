@@ -12,6 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { NutritionFavorite } from "@/types";
+import { FoodSearchInput } from "./food-search-input";
+import { BarcodeScanner } from "./barcode-scanner";
+import type { FoodProduct } from "@/lib/nutrition/food-search";
 
 const MEAL_PRESETS = [
   "Breakfast",
@@ -152,16 +155,38 @@ export function FoodEntryForm({
         )}
       </div>
 
-      {/* Food item */}
+      {/* Food item search with barcode scanner */}
       <div className="space-y-2">
         <Label htmlFor="food-item">Food Item</Label>
-        <Input
-          id="food-item"
-          placeholder="e.g. Chicken breast, 6oz"
-          value={foodItem}
-          onChange={(e) => setFoodItem(e.target.value)}
-          required
-        />
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <FoodSearchInput
+              value={foodItem}
+              onChange={setFoodItem}
+              onProductSelect={(macros) => {
+                setFoodItem(macros.food_item);
+                setCalories(macros.calories.toString());
+                setProteinG(macros.protein_g.toString());
+                setCarbsG(macros.carbs_g.toString());
+                setFatsG(macros.fats_g.toString());
+              }}
+            />
+          </div>
+          <BarcodeScanner
+            onProductFound={(product: FoodProduct) => {
+              const macros = product.perServing || product.per100g;
+              setFoodItem(
+                product.brand
+                  ? `${product.name} (${product.brand})`
+                  : product.name
+              );
+              setCalories(macros.calories.toString());
+              setProteinG(macros.protein.toString());
+              setCarbsG(macros.carbs.toString());
+              setFatsG(macros.fats.toString());
+            }}
+          />
+        </div>
       </div>
 
       {/* Macro inputs row */}
