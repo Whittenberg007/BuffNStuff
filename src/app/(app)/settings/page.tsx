@@ -7,6 +7,7 @@ import { TrainingSettings } from "@/components/settings/training-settings";
 import { NutritionSettings } from "@/components/settings/nutrition-settings";
 import { TDEECalculator } from "@/components/settings/tdee-calculator";
 import { FastingSettings } from "@/components/settings/fasting-settings";
+import { HealthSyncSettings } from "@/components/settings/health-sync-settings";
 import Link from "next/link";
 import { Database } from "lucide-react";
 import type { UserSettings } from "@/types";
@@ -94,6 +95,8 @@ export default function SettingsPage() {
           </p>
         </div>
       </Link>
+
+      <HealthSyncSettings />
 
       <TDEECalculator
         settings={settings}
