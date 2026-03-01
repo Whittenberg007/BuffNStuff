@@ -21,18 +21,6 @@ export default function ActiveProgramPage() {
   const [advancing, setAdvancing] = useState(false);
   const [abandoning, setAbandoning] = useState(false);
 
-  async function loadEnrollment() {
-    try {
-      const data = await getActiveEnrollment();
-      setEnrollment(data);
-    } catch (err) {
-      console.error("Failed to load enrollment:", err);
-      setEnrollment(null);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
     let cancelled = false;
 
