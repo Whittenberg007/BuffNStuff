@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Star, UtensilsCrossed, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Star, UtensilsCrossed, Save, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -279,6 +279,12 @@ export default function NutritionPage() {
       <div className="flex items-center justify-between">
         <FastingStreak />
         <div className="flex gap-2">
+          <Link href="/share">
+            <Button variant="outline" size="sm" className="gap-1">
+              <Share2 className="size-3.5" />
+              Share
+            </Button>
+          </Link>
           <Link href="/nutrition/plans">
             <Button variant="outline" size="sm" className="gap-1">
               <UtensilsCrossed className="size-3.5" />
