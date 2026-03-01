@@ -38,7 +38,7 @@ async function fetchWorkoutRows(userId: string, startDate: string, endDate: stri
     return {
       date: session?.started_at?.split("T")[0] || "",
       split_type: session?.split_type || "",
-      exercise: (set.exercise as { name: string } | null)?.name || "",
+      exercise: (set.exercise as unknown as { name: string } | null)?.name || "",
       set_number: set.set_number,
       weight: set.weight,
       reps: set.reps,

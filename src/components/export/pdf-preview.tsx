@@ -32,27 +32,31 @@ async function gatherReportData(startDate: string, endDate: string): Promise<Rep
     .not("ended_at", "is", null);
 
   const sessionIds = sessions?.map((s) => s.id) || [];
-  const { data: allSets } = sessionIds.length
-    ? await supabase
-        .from("workout_sets")
-        .select("session_id, weight, reps, is_pr, exercise:exercises(name)")
-        .in("session_id", sessionIds)
-    : { data: [] };
+  type WorkoutSet = { session_id: string; weight: number; reps: number; is_pr: boolean; exercise: unknown };
 
-  const totalVolume = (allSets || []).reduce((sum, s) => sum + s.weight * s.reps, 0);
-  const prsHit = (allSets || []).filter((s) => s.is_pr).length;
+  let allSets: WorkoutSet[] = [];
+  if (sessionIds.length) {
+    const { data } = await supabase
+      .from("workout_sets")
+      .select("session_id, weight, reps, is_pr, exercise:exercises(name)")
+      .in("session_id", sessionIds);
+    allSets = (data || []) as WorkoutSet[];
+  }
+
+  const totalVolume = allSets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+  const prsHit = allSets.filter((s) => s.is_pr).length;
 
   // Build workout log (top set per exercise per session)
   const workoutLog: ReportData["workoutLog"] = [];
   const sessionMap = new Map((sessions || []).map((s) => [s.id, s]));
-  const grouped = new Map<string, typeof allSets>();
-  for (const set of allSets || []) {
+  const grouped = new Map<string, WorkoutSet[]>();
+  for (const set of allSets) {
     const key = `${set.session_id}-${(set.exercise as { name: string } | null)?.name}`;
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(set);
   }
   for (const [, sets] of grouped) {
-    const best = sets!.reduce((a, b) => (a.weight * a.reps > b.weight * b.reps ? a : b));
+    const best = sets.reduce((a, b) => (a.weight * a.reps > b.weight * b.reps ? a : b));
     const session = sessionMap.get(best.session_id);
     workoutLog.push({
       date: session?.started_at?.split("T")[0] || "",
