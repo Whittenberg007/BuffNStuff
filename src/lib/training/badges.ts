@@ -103,6 +103,18 @@ async function awardBadge(
     earned_at: new Date().toISOString(),
     context,
   });
+
+  // Create feed event for badge earned
+  try {
+    const badge = BADGE_DEFINITIONS.find((b) => b.type === badgeType);
+    const { createFeedEvent } = await import("@/lib/database/feed");
+    await createFeedEvent("badge_earned", {
+      badge_type: badgeType,
+      badge_label: badge?.name || badgeType,
+    });
+  } catch {
+    // Feed event should never block badge award
+  }
 }
 
 // Check and award badges — returns newly earned badge types
@@ -133,6 +145,19 @@ export async function evaluateBadges(userId: string): Promise<string[]> {
       newlyEarned.push(type);
       earnedSet.add(type);
     }
+  }
+
+  // Create feed event for streak milestones (even if badge already earned)
+  try {
+    const STREAK_MILESTONES = [7, 14, 30, 60, 90];
+    if (STREAK_MILESTONES.includes(streak)) {
+      const { createFeedEvent } = await import("@/lib/database/feed");
+      await createFeedEvent("streak_milestone", {
+        streak_count: streak,
+      });
+    }
+  } catch {
+    // Feed event should never block badge evaluation
   }
 
   // --- PR Hunter: check if any PRs were logged today ---

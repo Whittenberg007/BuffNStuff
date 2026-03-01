@@ -1,6 +1,54 @@
 import { createClient } from "@/lib/supabase/client";
 import type { WeightEntry } from "@/types";
 
+async function checkWeightGoalAndNotify(): Promise<void> {
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Check if any weight goal was just achieved
+    const { data: goals } = await supabase
+      .from("goals")
+      .select("id, target_value, current_value, status")
+      .eq("user_id", user.id)
+      .eq("type", "weight")
+      .eq("status", "active");
+
+    if (!goals?.length) return;
+
+    const { data: latest } = await supabase
+      .from("weight_entries")
+      .select("weight")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!latest) return;
+
+    for (const goal of goals) {
+      // Check if current weight meets target (works for both gain and loss)
+      const targetMet =
+        goal.target_value >= goal.current_value
+          ? latest.weight >= goal.target_value
+          : latest.weight <= goal.target_value;
+
+      if (targetMet) {
+        const { createFeedEvent } = await import("@/lib/database/feed");
+        await createFeedEvent("weight_milestone", {
+          message: "Hit a weight goal!",
+        });
+        break; // Only one event per weight log
+      }
+    }
+  } catch {
+    // Feed event should never block weight logging
+  }
+}
+
 // Upsert a weight entry (one entry per day)
 export async function logWeight(
   date: string,
@@ -30,6 +78,7 @@ export async function logWeight(
       .single();
 
     if (error) throw error;
+    await checkWeightGoalAndNotify();
     return data as WeightEntry;
   }
 
@@ -45,6 +94,7 @@ export async function logWeight(
     .single();
 
   if (error) throw error;
+  await checkWeightGoalAndNotify();
   return data as WeightEntry;
 }
 
