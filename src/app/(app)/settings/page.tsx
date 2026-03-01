@@ -7,6 +7,8 @@ import { TrainingSettings } from "@/components/settings/training-settings";
 import { NutritionSettings } from "@/components/settings/nutrition-settings";
 import { TDEECalculator } from "@/components/settings/tdee-calculator";
 import { FastingSettings } from "@/components/settings/fasting-settings";
+import Link from "next/link";
+import { Database } from "lucide-react";
 import type { UserSettings } from "@/types";
 
 export default function SettingsPage() {
@@ -78,6 +80,20 @@ export default function SettingsPage() {
       />
 
       <FastingSettings />
+
+      {/* Data Export & Backup */}
+      <Link
+        href="/settings/export"
+        className="flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+      >
+        <Database className="size-5 text-muted-foreground" />
+        <div>
+          <p className="font-medium">Data Export & Backup</p>
+          <p className="text-sm text-muted-foreground">
+            Export CSV/JSON/PDF, backup and restore your data
+          </p>
+        </div>
+      </Link>
 
       <TDEECalculator
         settings={settings}
