@@ -41,7 +41,33 @@ export async function endWorkoutSession(
     .select()
     .single();
   if (error) throw error;
-  return data as WorkoutSession;
+
+  const session = data as WorkoutSession;
+
+  // Create feed event for workout completion
+  try {
+    const { data: sets } = await supabase
+      .from("workout_sets")
+      .select("weight, reps")
+      .eq("session_id", sessionId);
+
+    const totalSets = sets?.length || 0;
+    const totalVolume = (sets || []).reduce(
+      (sum, s) => sum + s.weight * s.reps,
+      0
+    );
+
+    const { createFeedEvent } = await import("@/lib/database/feed");
+    await createFeedEvent("workout_completed", {
+      split_type: session.split_type,
+      total_sets: totalSets,
+      total_volume: totalVolume,
+    });
+  } catch {
+    // Feed event creation should never block the main flow
+  }
+
+  return session;
 }
 
 // Log a single set
@@ -88,10 +114,29 @@ export async function updateSet(
     .from("workout_sets")
     .update(updates)
     .eq("id", setId)
-    .select()
+    .select("*, exercise:exercises(name)")
     .single();
   if (error) throw error;
-  return data as WorkoutSet;
+
+  const set = data as WorkoutSet;
+
+  // Create feed event if this set was marked as a PR
+  if (updates.is_pr) {
+    try {
+      const exerciseName = (set.exercise as unknown as { name: string } | null)?.name || "Unknown";
+      const { createFeedEvent } = await import("@/lib/database/feed");
+      await createFeedEvent("pr_hit", {
+        exercise_name: exerciseName,
+        weight: set.weight,
+        reps: set.reps,
+        unit: "lbs",
+      });
+    } catch {
+      // Feed event should never block set update
+    }
+  }
+
+  return set;
 }
 
 // Delete a set

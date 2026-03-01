@@ -236,3 +236,53 @@ export interface FastingLog {
   notes: string | null;
   created_at: string;
 }
+
+// --- Social & Community ---
+
+export type FollowStatus = "pending" | "accepted" | "rejected";
+
+export type FeedEventType =
+  | "workout_completed"
+  | "pr_hit"
+  | "streak_milestone"
+  | "badge_earned"
+  | "weight_milestone";
+
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  is_public: boolean;
+  friend_code: string;
+  created_at: string;
+}
+
+export interface Follow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  status: FollowStatus;
+  created_at: string;
+}
+
+export interface ActivityFeedItem {
+  id: string;
+  user_id: string;
+  event_type: FeedEventType;
+  event_data: Record<string, unknown>;
+  created_at: string;
+  // Joined fields (from queries)
+  profile?: UserProfile;
+  reactions?: Reaction[];
+}
+
+export interface Reaction {
+  id: string;
+  activity_id: string;
+  user_id: string;
+  emoji: string;
+  created_at: string;
+}
