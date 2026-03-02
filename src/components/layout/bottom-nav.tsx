@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, Dumbbell, BookOpen, Apple, Users, BarChart3 } from "lucide-react";
+import { Home, Dumbbell, BookOpen, Apple, Bot, BarChart3 } from "lucide-react";
 
 const tabs = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/workout", label: "Workout", icon: Dumbbell },
   { href: "/exercises", label: "Exercises", icon: BookOpen },
   { href: "/nutrition", label: "Nutrition", icon: Apple },
-  { href: "/community", label: "Community", icon: Users },
+  { href: "/coach", label: "Coach", icon: Bot },
   { href: "/progress", label: "Progress", icon: BarChart3 },
 ];
 

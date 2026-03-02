@@ -7,6 +7,7 @@ import { WeeklySummary } from "@/components/dashboard/weekly-summary";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
 import { RecentPRs } from "@/components/dashboard/recent-prs";
 import { BadgesDisplay } from "@/components/dashboard/badges-display";
+import { InsightCards } from "@/components/ai/insight-card";
 import { RotationSuggestions } from "@/components/training/rotation-suggestions";
 import { PlateauAlerts } from "@/components/training/plateau-alerts";
 import { VolumeLandmarks } from "@/components/training/volume-landmarks";
@@ -84,6 +85,8 @@ export default function DashboardPage() {
       </div>
 
       <ActiveProgramCard />
+
+      <InsightCards />
 
       <TodayWorkout />
 

@@ -34,6 +34,7 @@ import { ExerciseSetCard } from "./exercise-set-card";
 import { ExercisePickerDialog } from "./exercise-picker-dialog";
 import { RestTimer } from "./rest-timer";
 import type { Exercise, WorkoutSession, WorkoutSet } from "@/types";
+import { PostWorkoutSummary } from "@/components/ai/post-workout-summary";
 
 function formatElapsed(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -72,6 +73,7 @@ export function ActiveWorkout({
   const [showExercisePicker, setShowExercisePicker] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -200,7 +202,7 @@ export function ActiveWorkout({
       toast.success("Workout complete!", {
         description: `${totalSets} sets, ${totalVolume.toLocaleString()} lbs total volume`,
       });
-      router.push("/workout");
+      setShowSummary(true);
     } catch (err) {
       console.error("Failed to end session:", err);
       toast.error("Failed to end workout");
@@ -208,7 +210,7 @@ export function ActiveWorkout({
       setIsFinishing(false);
       setShowFinishDialog(false);
     }
-  }, [session.id, totalSets, totalVolume, router]);
+  }, [session.id, totalSets, totalVolume]);
 
   if (loading) {
     return (
@@ -362,6 +364,30 @@ export function ActiveWorkout({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Post-workout AI Summary */}
+      {showSummary && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 p-4">
+          <div className="w-full max-w-md space-y-4">
+            <h2 className="text-xl font-bold text-center">Workout Complete!</h2>
+            <div className="text-center text-sm text-muted-foreground">
+              <p>{totalSets} sets | {uniqueExercises} exercises | {totalVolume.toLocaleString()} lbs</p>
+              <p>{formatElapsed(elapsedSeconds)}</p>
+            </div>
+            <PostWorkoutSummary
+              sessionId={session.id}
+              totalSets={totalSets}
+              totalVolume={totalVolume}
+              exerciseCount={uniqueExercises}
+              elapsedSeconds={elapsedSeconds}
+              sets={sets}
+            />
+            <Button className="w-full" onClick={() => router.push("/workout")}>
+              Done
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

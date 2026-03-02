@@ -36,6 +36,7 @@ import { FastingStreak } from "@/components/nutrition/fasting-streak";
 import { saveDayAsPlan } from "@/lib/database/meal-plans";
 import Link from "next/link";
 import { toast } from "sonner";
+import { QuickFoodLog } from "@/components/ai/quick-food-log";
 
 // Default targets — will be overridden by user settings when available
 const DEFAULT_TARGETS = {
@@ -274,6 +275,9 @@ export default function NutritionPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* AI Quick Food Log */}
+      <QuickFoodLog date={date} onLogged={loadData} />
 
       {/* Fasting streak + Meal plan actions */}
       <div className="flex items-center justify-between">
