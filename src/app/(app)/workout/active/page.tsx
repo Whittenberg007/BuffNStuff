@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { ActiveWorkout } from "@/components/workout/active-workout";
+import { ReadinessCheck } from "@/components/workout/readiness-check";
 import { createClient } from "@/lib/supabase/client";
 import { getExerciseById } from "@/lib/database/exercises";
 import type { Exercise, WorkoutSession } from "@/types";
@@ -18,6 +19,7 @@ function ActiveWorkoutPageContent() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readinessDone, setReadinessDone] = useState(false);
 
   useEffect(() => {
     if (!sessionId) {
@@ -96,12 +98,34 @@ function ActiveWorkoutPageContent() {
     );
   }
 
+  async function handleReadinessComplete(moodEnergy: number | null) {
+    setReadinessDone(true);
+    if (moodEnergy !== null && session) {
+      try {
+        const supabase = createClient();
+        await supabase
+          .from("workout_sessions")
+          .update({ mood_energy: moodEnergy })
+          .eq("id", session.id);
+      } catch {
+        // Non-blocking
+      }
+    }
+  }
+
   return (
     <div className="p-4 md:p-8">
-      <ActiveWorkout
-        session={session}
-        initialExercises={exercises}
-      />
+      {!readinessDone ? (
+        <ReadinessCheck
+          sessionId={session.id}
+          onComplete={handleReadinessComplete}
+        />
+      ) : (
+        <ActiveWorkout
+          session={session}
+          initialExercises={exercises}
+        />
+      )}
     </div>
   );
 }

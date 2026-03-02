@@ -11,6 +11,8 @@ import { InsightCards } from "@/components/ai/insight-card";
 import { RotationSuggestions } from "@/components/training/rotation-suggestions";
 import { PlateauAlerts } from "@/components/training/plateau-alerts";
 import { VolumeLandmarks } from "@/components/training/volume-landmarks";
+import { RecoveryScore } from "@/components/dashboard/recovery-score";
+import { MuscleFatigueMap } from "@/components/dashboard/muscle-fatigue-map";
 import { getActiveEnrollment } from "@/lib/database/programs";
 import { BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -91,6 +93,11 @@ export default function DashboardPage() {
       <TodayWorkout />
 
       <WeeklySummary />
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <RecoveryScore />
+        <MuscleFatigueMap />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <StreakCounter />

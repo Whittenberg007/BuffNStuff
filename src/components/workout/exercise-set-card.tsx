@@ -41,6 +41,8 @@ interface ExerciseSetCardProps {
   onSetLogged: (set: WorkoutSet) => void;
   onSetDeleted: (setId: string) => void;
   onRestTimerTrigger: () => void;
+  unitPreference?: "lbs" | "kg";
+  supersetLinkButton?: React.ReactNode;
 }
 
 export function ExerciseSetCard({
@@ -53,6 +55,8 @@ export function ExerciseSetCard({
   onSetLogged,
   onSetDeleted,
   onRestTimerTrigger,
+  unitPreference,
+  supersetLinkButton,
 }: ExerciseSetCardProps) {
   const [isExpanded, setIsExpanded] = useState(isActive);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -91,20 +95,23 @@ export function ExerciseSetCard({
               {capitalize(exercise.primary_muscle_group)}
             </Badge>
           </div>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => {
-              setIsExpanded((prev) => !prev);
-              if (!isActive) onActivate();
-            }}
-          >
-            {isExpanded ? (
-              <ChevronUp className="size-4" />
-            ) : (
-              <ChevronDown className="size-4" />
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            {supersetLinkButton}
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                setIsExpanded((prev) => !prev);
+                if (!isActive) onActivate();
+              }}
+            >
+              {isExpanded ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </Button>
+          </div>
         </div>
         {sets.length > 0 && (
           <p className="text-xs text-muted-foreground">
@@ -164,6 +171,7 @@ export function ExerciseSetCard({
               sessionId={sessionId}
               currentSetNumber={nextSetNumber}
               onSetLogged={handleSetLogged}
+              unitPreference={unitPreference}
             />
           </div>
         )}

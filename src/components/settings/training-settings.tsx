@@ -70,6 +70,12 @@ export function TrainingSettings({
   const [rotationMode, setRotationMode] = useState<RotationMode>(
     settings.rotation_mode
   );
+  const [autoRestTimer, setAutoRestTimer] = useState(
+    settings.auto_rest_timer ?? false
+  );
+  const [autoRestSeconds, setAutoRestSeconds] = useState(
+    settings.auto_rest_seconds ?? 90
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   async function handleSave() {
@@ -79,6 +85,8 @@ export function TrainingSettings({
         preferred_split: preferredSplit,
         training_days_per_week: trainingDays,
         rotation_mode: rotationMode,
+        auto_rest_timer: autoRestTimer,
+        auto_rest_seconds: autoRestSeconds,
       });
       onSettingsUpdated(updated);
       toast.success("Training settings saved");
@@ -153,6 +161,50 @@ export function TrainingSettings({
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Auto-Rest Timer</Label>
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <div>
+              <div className="font-medium text-sm">Auto-start rest timer</div>
+              <div className="text-xs text-muted-foreground">
+                Automatically start rest timer after logging a set
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAutoRestTimer(!autoRestTimer)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                autoRestTimer ? "bg-primary" : "bg-muted"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  autoRestTimer ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+          {autoRestTimer && (
+            <div className="space-y-1">
+              <Label htmlFor="auto-rest-seconds">Default Rest Duration (seconds)</Label>
+              <Input
+                id="auto-rest-seconds"
+                type="number"
+                min={15}
+                max={600}
+                step={15}
+                value={autoRestSeconds}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val >= 15 && val <= 600) {
+                    setAutoRestSeconds(val);
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="pt-2">

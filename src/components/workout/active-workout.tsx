@@ -30,10 +30,12 @@ import {
   getSessionSets,
   getLastSessionForExercise,
 } from "@/lib/database/workouts";
+import { getSettings } from "@/lib/database/settings";
 import { ExerciseSetCard } from "./exercise-set-card";
 import { ExercisePickerDialog } from "./exercise-picker-dialog";
 import { RestTimer } from "./rest-timer";
-import type { Exercise, WorkoutSession, WorkoutSet } from "@/types";
+import { SupersetLinkButton, SupersetConnector } from "./superset-indicator";
+import type { Exercise, UserSettings, WorkoutSession, WorkoutSet } from "@/types";
 import { PostWorkoutSummary } from "@/components/ai/post-workout-summary";
 
 function formatElapsed(seconds: number): string {
@@ -75,6 +77,8 @@ export function ActiveWorkout({
   const [isFinishing, setIsFinishing] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [supersetPairs, setSupersetPairs] = useState<Set<string>>(new Set());
 
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -151,6 +155,11 @@ export function ActiveWorkout({
     };
   }, [session.started_at]);
 
+  // Load user settings for auto-rest
+  useEffect(() => {
+    getSettings().then(setSettings).catch(() => {});
+  }, []);
+
   // Group sets by exercise
   const setsByExercise = exercises.reduce<Record<string, WorkoutSet[]>>(
     (acc, ex) => {
@@ -176,14 +185,30 @@ export function ActiveWorkout({
   );
 
   const handleSetLogged = useCallback(
-    (newSet: WorkoutSet) => {
+    (newSet: WorkoutSet, exerciseId?: string) => {
       setSets((prev) => [...prev, newSet]);
       toast.success("Set logged", {
         description: `${newSet.weight} lbs x ${newSet.reps} reps`,
         duration: 2000,
       });
+
+      // Superset logic: if this exercise is linked, scroll to next instead of rest
+      const exId = exerciseId || newSet.exercise_id;
+      if (supersetPairs.has(exId)) {
+        const currentIdx = exercises.findIndex((e) => e.id === exId);
+        const nextExercise = exercises[currentIdx + 1];
+        if (nextExercise) {
+          setActiveExerciseId(nextExercise.id);
+          return; // Skip rest timer
+        }
+      }
+
+      // Auto-rest timer
+      if (settings?.auto_rest_timer) {
+        setRestTimerTrigger((prev) => prev + 1);
+      }
     },
-    []
+    [supersetPairs, exercises, settings]
   );
 
   const handleSetDeleted = useCallback((setId: string) => {
@@ -193,6 +218,18 @@ export function ActiveWorkout({
 
   const handleRestTimerTrigger = useCallback(() => {
     setRestTimerTrigger((prev) => prev + 1);
+  }, []);
+
+  const handleSupersetToggle = useCallback((exerciseId: string) => {
+    setSupersetPairs((prev) => {
+      const next = new Set(prev);
+      if (next.has(exerciseId)) {
+        next.delete(exerciseId);
+      } else {
+        next.add(exerciseId);
+      }
+      return next;
+    });
   }, []);
 
   const handleFinishWorkout = useCallback(async () => {
@@ -274,19 +311,32 @@ export function ActiveWorkout({
       ) : (
         <ScrollArea className="h-auto">
           <div className="space-y-4">
-            {exercises.map((exercise) => (
-              <ExerciseSetCard
-                key={exercise.id}
-                exercise={exercise}
-                sets={setsByExercise[exercise.id] || []}
-                lastSessionSets={lastSessionCache[exercise.id] || []}
-                sessionId={session.id}
-                isActive={activeExerciseId === exercise.id}
-                onActivate={() => setActiveExerciseId(exercise.id)}
-                onSetLogged={handleSetLogged}
-                onSetDeleted={handleSetDeleted}
-                onRestTimerTrigger={handleRestTimerTrigger}
-              />
+            {exercises.map((exercise, idx) => (
+              <div key={exercise.id}>
+                {idx > 0 && supersetPairs.has(exercises[idx - 1].id) && (
+                  <SupersetConnector />
+                )}
+                <ExerciseSetCard
+                  exercise={exercise}
+                  sets={setsByExercise[exercise.id] || []}
+                  lastSessionSets={lastSessionCache[exercise.id] || []}
+                  sessionId={session.id}
+                  isActive={activeExerciseId === exercise.id}
+                  onActivate={() => setActiveExerciseId(exercise.id)}
+                  onSetLogged={(set) => handleSetLogged(set, exercise.id)}
+                  onSetDeleted={handleSetDeleted}
+                  onRestTimerTrigger={handleRestTimerTrigger}
+                  unitPreference={settings?.unit_preference}
+                  supersetLinkButton={
+                    idx < exercises.length - 1 ? (
+                      <SupersetLinkButton
+                        isLinked={supersetPairs.has(exercise.id)}
+                        onToggle={() => handleSupersetToggle(exercise.id)}
+                      />
+                    ) : undefined
+                  }
+                />
+              </div>
             ))}
 
             <Separator className="my-4" />
@@ -314,7 +364,10 @@ export function ActiveWorkout({
       </div>
 
       {/* Rest Timer */}
-      <RestTimer trigger={restTimerTrigger} />
+      <RestTimer
+        trigger={restTimerTrigger}
+        defaultDuration={settings?.auto_rest_seconds ?? 90}
+      />
 
       {/* Exercise Picker */}
       <ExercisePickerDialog
