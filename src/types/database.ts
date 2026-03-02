@@ -462,3 +462,40 @@ export interface AIInsight {
   category: "training" | "nutrition" | "recovery";
   icon: string;
 }
+
+// --- Body Measurements & Progress Photos ---
+
+export type PhotoPose = "front" | "side" | "back";
+
+export type MeasurementField =
+  | "neck" | "chest" | "waist" | "hips"
+  | "left_bicep" | "right_bicep"
+  | "left_thigh" | "right_thigh"
+  | "left_calf" | "right_calf";
+
+export interface BodyMeasurement {
+  id: string;
+  user_id: string;
+  date: string;
+  neck: number | null;
+  chest: number | null;
+  waist: number | null;
+  hips: number | null;
+  left_bicep: number | null;
+  right_bicep: number | null;
+  left_thigh: number | null;
+  right_thigh: number | null;
+  left_calf: number | null;
+  right_calf: number | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface ProgressPhoto {
+  id: string;
+  user_id: string;
+  date: string;
+  pose: PhotoPose;
+  storage_path: string;
+  created_at: string;
+}
