@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Calculator, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { logSet } from "@/lib/database/workouts";
 import { getLastSessionForExercise } from "@/lib/database/workouts";
 import type { Exercise, WorkoutSet, SetType } from "@/types";
 import { hapticNotification } from "@/lib/capacitor/haptics";
+import { PlateCalculator } from "./plate-calculator";
 
 const SET_TYPES: { value: SetType; label: string }[] = [
   { value: "working", label: "Working" },
@@ -24,6 +25,7 @@ interface SetLoggerProps {
   sessionId: string;
   currentSetNumber: number;
   onSetLogged: (set: WorkoutSet) => void;
+  unitPreference?: "lbs" | "kg";
 }
 
 export function SetLogger({
@@ -31,6 +33,7 @@ export function SetLogger({
   sessionId,
   currentSetNumber,
   onSetLogged,
+  unitPreference,
 }: SetLoggerProps) {
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
@@ -41,6 +44,7 @@ export function SetLogger({
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastSession, setLastSession] = useState<WorkoutSet[]>([]);
   const [loadingLast, setLoadingLast] = useState(true);
+  const [showPlateCalc, setShowPlateCalc] = useState(false);
 
   const weightInputRef = useRef<HTMLInputElement>(null);
 
@@ -145,8 +149,16 @@ export function SetLogger({
       {/* Weight + Reps inputs side by side */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor={`weight-${exercise.id}`} className="text-xs mb-1 block text-muted-foreground">
-            Weight (lbs)
+          <Label htmlFor={`weight-${exercise.id}`} className="text-xs mb-1 flex items-center gap-1 text-muted-foreground">
+            Weight ({unitPreference || "lbs"})
+            <button
+              type="button"
+              onClick={() => setShowPlateCalc(true)}
+              className="ml-auto text-primary hover:text-primary/80"
+              title="Plate calculator"
+            >
+              <Calculator className="size-3.5" />
+            </button>
           </Label>
           <Input
             ref={weightInputRef}
@@ -255,6 +267,14 @@ export function SetLogger({
           `Log Set ${currentSetNumber}`
         )}
       </Button>
+
+      {showPlateCalc && (
+        <PlateCalculator
+          weight={parseFloat(weight) || 0}
+          unit={unitPreference || "lbs"}
+          onClose={() => setShowPlateCalc(false)}
+        />
+      )}
     </div>
   );
 }
