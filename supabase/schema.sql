@@ -274,3 +274,27 @@ CREATE INDEX idx_goals_user_status ON goals(user_id, status);
 CREATE INDEX idx_exercise_clips_user ON exercise_clips(user_id);
 CREATE INDEX idx_exercise_clips_exercise ON exercise_clips(exercise_id);
 CREATE INDEX idx_exercise_rotation_user ON exercise_rotation_state(user_id, muscle_group);
+
+-- Phase 19: Readiness Check-ins
+CREATE TABLE readiness_checkins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  session_id UUID REFERENCES workout_sessions(id) ON DELETE SET NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  sleep_quality SMALLINT CHECK (sleep_quality BETWEEN 1 AND 5),
+  soreness SMALLINT CHECK (soreness BETWEEN 1 AND 5),
+  energy SMALLINT CHECK (energy BETWEEN 1 AND 5),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, date)
+);
+
+ALTER TABLE readiness_checkins ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can CRUD own readiness checkins"
+  ON readiness_checkins FOR ALL TO authenticated
+  USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+CREATE INDEX idx_readiness_user_date ON readiness_checkins(user_id, date DESC);
+
+-- Add auto-rest settings to user_settings
+ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS auto_rest_timer BOOLEAN DEFAULT false;
+ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS auto_rest_seconds SMALLINT DEFAULT 90;

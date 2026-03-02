@@ -34,6 +34,8 @@ export async function getSettings(): Promise<UserSettings> {
         training_days_per_week: 5,
         preferred_split: "ppl",
         rotation_mode: "suggested",
+        auto_rest_timer: false,
+        auto_rest_seconds: 90,
       })
       .select()
       .single();
@@ -64,6 +66,8 @@ export async function updateSettings(
       | "training_days_per_week"
       | "preferred_split"
       | "rotation_mode"
+      | "auto_rest_timer"
+      | "auto_rest_seconds"
     >
   >
 ): Promise<UserSettings> {

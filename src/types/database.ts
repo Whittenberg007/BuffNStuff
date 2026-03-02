@@ -183,6 +183,8 @@ export interface UserSettings {
   preferred_split: string;
   rotation_mode: RotationMode;
   updated_at: string;
+  auto_rest_timer: boolean;
+  auto_rest_seconds: number;
 }
 
 export type FastingProtocol = "12:12" | "14:10" | "16:8" | "18:6" | "20:4" | "23:1" | "custom";
@@ -497,5 +499,17 @@ export interface ProgressPhoto {
   date: string;
   pose: PhotoPose;
   storage_path: string;
+  created_at: string;
+}
+
+// Phase 19: Recovery & Readiness
+export interface ReadinessCheckin {
+  id: string;
+  user_id: string;
+  session_id: string | null;
+  date: string;
+  sleep_quality: number | null;
+  soreness: number | null;
+  energy: number | null;
   created_at: string;
 }
