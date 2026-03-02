@@ -298,3 +298,23 @@ CREATE INDEX idx_readiness_user_date ON readiness_checkins(user_id, date DESC);
 -- Add auto-rest settings to user_settings
 ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS auto_rest_timer BOOLEAN DEFAULT false;
 ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS auto_rest_seconds SMALLINT DEFAULT 90;
+
+-- Phase 20: Cardio Sessions
+CREATE TABLE cardio_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  activity_type TEXT NOT NULL CHECK (activity_type IN ('run', 'bike', 'row', 'swim', 'walk')),
+  duration_seconds INTEGER NOT NULL CHECK (duration_seconds > 0),
+  distance DECIMAL,
+  avg_pace DECIMAL,
+  notes TEXT,
+  completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE cardio_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can CRUD own cardio sessions"
+  ON cardio_sessions FOR ALL TO authenticated
+  USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+CREATE INDEX idx_cardio_user_date ON cardio_sessions(user_id, completed_at DESC);
