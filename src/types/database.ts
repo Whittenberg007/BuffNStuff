@@ -435,3 +435,30 @@ export interface AppNotification {
   is_read: boolean;
   created_at: string;
 }
+
+// --- AI Coach ---
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+  toolResults?: ParsedFoodItem[];
+}
+
+export interface ParsedFoodItem {
+  food_item: string;
+  meal_name: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+  quantity_note: string;
+}
+
+export interface AIInsight {
+  id: string;
+  text: string;
+  category: "training" | "nutrition" | "recovery";
+  icon: string;
+}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, Dumbbell, BookOpen, Apple, BarChart3, Settings, LogOut } from "lucide-react";
+import { Home, Dumbbell, BookOpen, Apple, BarChart3, Settings, LogOut, Bot } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: "/exercises", label: "Exercises", icon: BookOpen },
   { href: "/nutrition", label: "Nutrition", icon: Apple },
   { href: "/progress", label: "Progress", icon: BarChart3 },
+  { href: "/coach", label: "Coach", icon: Bot },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
