@@ -9,6 +9,7 @@ import {
   Loader2,
   Plus,
   Square,
+  Timer,
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ import { ExerciseSetCard } from "./exercise-set-card";
 import { ExercisePickerDialog } from "./exercise-picker-dialog";
 import { RestTimer } from "./rest-timer";
 import { SupersetLinkButton, SupersetConnector } from "./superset-indicator";
+import { WorkoutTimer } from "./workout-timer";
 import type { Exercise, UserSettings, WorkoutSession, WorkoutSet } from "@/types";
 import { PostWorkoutSummary } from "@/components/ai/post-workout-summary";
 
@@ -79,6 +81,7 @@ export function ActiveWorkout({
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [supersetPairs, setSupersetPairs] = useState<Set<string>>(new Set());
+  const [showWorkoutTimer, setShowWorkoutTimer] = useState(false);
 
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -269,6 +272,15 @@ export function ActiveWorkout({
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => setShowWorkoutTimer(true)}
+              title="Workout Timer (EMOM/AMRAP)"
+            >
+              <Timer className="size-4" />
+            </Button>
             {session.split_type && (
               <Badge variant="secondary" className="text-xs">
                 {session.split_type.replace("_", " ").toUpperCase()}
@@ -367,6 +379,12 @@ export function ActiveWorkout({
       <RestTimer
         trigger={restTimerTrigger}
         defaultDuration={settings?.auto_rest_seconds ?? 90}
+      />
+
+      {/* Workout Timer (EMOM/AMRAP) */}
+      <WorkoutTimer
+        open={showWorkoutTimer}
+        onClose={() => setShowWorkoutTimer(false)}
       />
 
       {/* Exercise Picker */}

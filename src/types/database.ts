@@ -513,3 +513,27 @@ export interface ReadinessCheckin {
   energy: number | null;
   created_at: string;
 }
+
+// Phase 20: Strength Standards & Cardio
+export type StrengthLevel = "beginner" | "novice" | "intermediate" | "advanced" | "elite";
+export type CardioActivityType = "run" | "bike" | "row" | "swim" | "walk";
+
+export interface RepMax {
+  exerciseId: string;
+  exerciseName: string;
+  weight: number;
+  reps: number;
+  date: string;
+}
+
+export interface CardioSession {
+  id: string;
+  user_id: string;
+  activity_type: CardioActivityType;
+  duration_seconds: number;
+  distance: number | null;
+  avg_pace: number | null;
+  notes: string | null;
+  completed_at: string;
+  created_at: string;
+}
