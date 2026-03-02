@@ -115,6 +115,21 @@ async function awardBadge(
   } catch {
     // Feed event should never block badge award
   }
+
+  // Create notification for badge earned
+  try {
+    const badge = BADGE_DEFINITIONS.find((b) => b.type === badgeType);
+    const { createNotification } = await import("@/lib/database/notifications");
+    await createNotification({
+      userId,
+      type: "badge_earned",
+      title: "Badge earned!",
+      body: `You earned: ${badge?.name || badgeType}`,
+      data: { link: "/progress" },
+    });
+  } catch {
+    // Notification should never block badge award
+  }
 }
 
 // Check and award badges — returns newly earned badge types

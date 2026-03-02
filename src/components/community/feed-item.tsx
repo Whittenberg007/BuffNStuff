@@ -10,6 +10,10 @@ import {
   Flame,
   Award,
   Scale,
+  Swords,
+  Crown,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import type { ActivityFeedItem, FeedEventType } from "@/types";
 import Link from "next/link";
@@ -32,6 +36,14 @@ function getEventIcon(type: FeedEventType) {
       return <Award className="size-4 text-purple-500" />;
     case "weight_milestone":
       return <Scale className="size-4 text-green-500" />;
+    case "challenge_created":
+      return <Swords className="size-4 text-orange-500" />;
+    case "challenge_won":
+      return <Crown className="size-4 text-yellow-500" />;
+    case "program_started":
+      return <BookOpen className="size-4 text-blue-500" />;
+    case "program_completed":
+      return <GraduationCap className="size-4 text-green-500" />;
   }
 }
 
@@ -50,6 +62,14 @@ function getEventText(item: ActivityFeedItem): string {
       return `${name} earned ${d.badge_label}`;
     case "weight_milestone":
       return `${name} hit a weight goal!`;
+    case "challenge_created":
+      return `${name} created a challenge: ${d.challenge_title}`;
+    case "challenge_won":
+      return `${name} won the challenge: ${d.challenge_title}!`;
+    case "program_started":
+      return `${name} started ${d.program_name} (${d.goal})`;
+    case "program_completed":
+      return `${name} completed ${d.program_name}!`;
     default:
       return `${name} did something awesome`;
   }

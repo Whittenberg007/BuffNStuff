@@ -246,7 +246,11 @@ export type FeedEventType =
   | "pr_hit"
   | "streak_milestone"
   | "badge_earned"
-  | "weight_milestone";
+  | "weight_milestone"
+  | "challenge_created"
+  | "challenge_won"
+  | "program_started"
+  | "program_completed";
 
 export interface UserProfile {
   id: string;
@@ -284,5 +288,150 @@ export interface Reaction {
   activity_id: string;
   user_id: string;
   emoji: string;
+  created_at: string;
+}
+
+// --- Programs, Challenges & Notifications ---
+
+export type ProgramGoal = "strength" | "hypertrophy" | "endurance" | "recomp" | "general";
+export type ProgramDifficulty = "beginner" | "intermediate" | "advanced";
+export type PeriodizationType = "linear" | "dup" | "block" | "conjugate";
+export type ProgressionType = "linear_weight" | "linear_reps" | "percentage" | "rpe" | "wave" | "volume_ramp";
+export type EnrollmentStatus = "active" | "completed" | "abandoned";
+export type ChallengeType = "total_volume" | "total_workouts" | "streak" | "total_sets" | "total_reps";
+export type ChallengeStatus = "upcoming" | "active" | "completed";
+export type NotificationType =
+  | "workout_reminder"
+  | "follow_request"
+  | "follow_accepted"
+  | "reaction_received"
+  | "challenge_invite"
+  | "challenge_won"
+  | "pr_hit"
+  | "badge_earned"
+  | "streak_milestone"
+  | "goal_completed";
+
+export interface TrainingProgram {
+  id: string;
+  user_id: string | null;
+  name: string;
+  description: string | null;
+  duration_weeks: number;
+  difficulty: ProgramDifficulty;
+  goal: ProgramGoal;
+  days_per_week: number;
+  periodization: PeriodizationType;
+  schedule: ProgramSchedule;
+  progression_rules: ProgressionRules;
+  deload_config: DeloadConfig;
+  is_prebuilt: boolean;
+  created_at: string;
+}
+
+export interface ProgramSchedule {
+  weeks: ProgramWeek[];
+  repeat_from_week?: number;
+}
+
+export interface ProgramWeek {
+  week_number: number;
+  label: string;
+  is_deload?: boolean;
+  days: ProgramDay[];
+}
+
+export interface ProgramDay {
+  day_of_week: number;
+  template_id: string | null;
+  label: string;
+  exercises: ProgramExercise[];
+  overrides?: {
+    sets_multiplier?: number;
+    rpe_target?: number;
+  };
+}
+
+export interface ProgramExercise {
+  exercise_id: string;
+  exercise_name: string;
+  sets: number;
+  reps: number | string;
+  rpe_target?: number;
+  rest_seconds?: number;
+  notes?: string;
+}
+
+export interface ProgressionRules {
+  type: ProgressionType;
+  compound_increment_lbs?: number;
+  isolation_increment_lbs?: number;
+  percentage_increase?: number;
+  failure_protocol?: string;
+  rpe_target?: number;
+}
+
+export interface DeloadConfig {
+  every_n_weeks: number;
+  volume_reduction: number;
+  intensity_reduction: number;
+}
+
+export interface ProgramEnrollment {
+  id: string;
+  user_id: string;
+  program_id: string;
+  started_at: string;
+  current_week: number;
+  current_day_index: number;
+  status: EnrollmentStatus;
+  progress_log: Record<string, unknown>;
+  completed_at: string | null;
+  program?: TrainingProgram;
+}
+
+export interface Challenge {
+  id: string;
+  creator_id: string;
+  title: string;
+  description: string | null;
+  challenge_type: ChallengeType;
+  start_date: string;
+  end_date: string;
+  status: ChallengeStatus;
+  created_at: string;
+  creator?: UserProfile;
+  participant_count?: number;
+  my_score?: number;
+}
+
+export interface ChallengeParticipant {
+  id: string;
+  challenge_id: string;
+  user_id: string;
+  current_score: number;
+  joined_at: string;
+  profile?: UserProfile;
+}
+
+export interface NotificationPreferences {
+  id: string;
+  user_id: string;
+  workout_reminders: boolean;
+  social_notifications: boolean;
+  achievement_alerts: boolean;
+  reminder_time: string;
+  reminder_days: number[];
+  updated_at: string;
+}
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  data: { link?: string; metadata?: Record<string, unknown> };
+  is_read: boolean;
   created_at: string;
 }
