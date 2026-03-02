@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dumbbell,
+  Footprints,
   LayoutTemplate,
   Loader2,
   Plus,
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 import { startWorkoutSession, getRecentSessions, getSessionSets } from "@/lib/database/workouts";
 import { TemplatePicker } from "@/components/workout/template-picker";
 import { SessionCard } from "@/components/workout/session-card";
+import Link from "next/link";
 import type { WorkoutSession } from "@/types";
 
 interface SessionWithStats extends WorkoutSession {
@@ -132,6 +134,21 @@ export default function WorkoutPage() {
             <span className="text-xs text-muted-foreground font-normal">
               Use a saved workout
             </span>
+          </Button>
+
+          {/* Log Cardio */}
+          <Button
+            variant="outline"
+            className="h-20 flex-col gap-1.5 text-base"
+            asChild
+          >
+            <Link href="/workout/cardio">
+              <Footprints className="size-6" />
+              <span className="font-semibold">Log Cardio</span>
+              <span className="text-xs text-muted-foreground font-normal">
+                Run, bike, swim & more
+              </span>
+            </Link>
           </Button>
         </div>
 
