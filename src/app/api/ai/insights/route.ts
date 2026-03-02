@@ -64,7 +64,7 @@ export async function GET() {
       `Target: ${settings?.training_days_per_week || 5} days/week`,
       `Today's calories: ${todayCals} / ${settings?.daily_calorie_target || 2500}`,
       `Today's protein: ${todayProtein}g / ${settings?.protein_target_g || 180}g`,
-      `Recent PRs: ${prs.length > 0 ? prs.map((p: { exercise: { name: string } | null }) => (p.exercise as { name: string } | null)?.name || "").join(", ") : "None this week"}`,
+      `Recent PRs: ${prs.length > 0 ? prs.map((p: Record<string, unknown>) => { const ex = p.exercise as { name: string }[] | null; return ex?.[0]?.name || ""; }).filter(Boolean).join(", ") : "None this week"}`,
     ].join("\n");
 
     const anthropic = new Anthropic();

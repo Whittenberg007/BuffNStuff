@@ -64,10 +64,9 @@ const getRecentWorkouts: AITool = {
         .filter((set) => set.session_id === s.id)
         .map((set) => ({
           exercise:
-            (set.exercise as { name: string } | null)?.name || "Unknown",
-          muscle: (
-            set.exercise as { primary_muscle_group: string } | null
-          )?.primary_muscle_group,
+            ((set.exercise as unknown as { name: string }[] | null)?.[0]?.name) || "Unknown",
+          muscle:
+            (set.exercise as unknown as { primary_muscle_group: string }[] | null)?.[0]?.primary_muscle_group,
           weight: set.weight,
           reps: set.reps,
           type: set.set_type,
@@ -320,9 +319,9 @@ const getPlateauStatus: AITool = {
       const arr = byExercise.get(key)!;
       const existing = arr.find((s) => s.sessionId === set.session_id);
       const name =
-        (set.exercise as { name: string } | null)?.name || "Unknown";
+        (set.exercise as unknown as { name: string }[] | null)?.[0]?.name || "Unknown";
       const muscle =
-        (set.exercise as { primary_muscle_group: string } | null)
+        (set.exercise as unknown as { primary_muscle_group: string }[] | null)?.[0]
           ?.primary_muscle_group || "unknown";
       if (!existing) {
         arr.push({

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cap": "cross-env CAPACITOR_BUILD=true next build",
+    "build:cap": "node scripts/cap-build.mjs",
     "start": "next start",
     "lint": "eslint",
     "cap:sync": "npx cap sync",
