@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import type { WorkoutSession, WorkoutSet, SetType } from "@/types";
+import type { WorkoutSession, WorkoutSet, SetType, SplitType } from "@/types";
 
 // Start a new workout session
 export async function startWorkoutSession(options?: {
@@ -264,4 +264,73 @@ export async function checkIfPR(
   if (error) return false;
   // If no existing set matches or exceeds both weight AND reps, this is a PR
   return !data || data.length === 0;
+}
+
+// --- Calendar data ---
+
+export interface CalendarSession {
+  id: string;
+  started_at: string;
+  ended_at: string;
+  split_type: SplitType | null;
+  notes: string | null;
+  totalSets: number;
+  totalVolume: number;
+  exercises: string[];
+  prCount: number;
+}
+
+export async function getSessionsForRange(
+  startDate: string,
+  endDate: string
+): Promise<CalendarSession[]> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: sessions, error } = await supabase
+    .from("workout_sessions")
+    .select("id, started_at, ended_at, split_type, notes")
+    .eq("user_id", user.id)
+    .not("ended_at", "is", null)
+    .gte("started_at", startDate)
+    .lte("started_at", endDate)
+    .order("started_at", { ascending: true });
+
+  if (error) throw error;
+  if (!sessions || sessions.length === 0) return [];
+
+  const sessionIds = sessions.map((s) => s.id);
+
+  const { data: sets } = await supabase
+    .from("workout_sets")
+    .select("session_id, weight, reps, is_pr, exercise:exercises(name)")
+    .in("session_id", sessionIds);
+
+  // Aggregate per session
+  return sessions.map((s) => {
+    const sessionSets = (sets || []).filter((set) => set.session_id === s.id);
+    const exerciseNames = new Set<string>();
+    let volume = 0;
+    let prs = 0;
+    for (const set of sessionSets) {
+      volume += set.weight * set.reps;
+      if (set.is_pr) prs++;
+      const name = (set.exercise as unknown as { name: string }[] | null)?.[0]?.name;
+      if (name) exerciseNames.add(name);
+    }
+    return {
+      id: s.id,
+      started_at: s.started_at,
+      ended_at: s.ended_at,
+      split_type: s.split_type as SplitType | null,
+      notes: s.notes,
+      totalSets: sessionSets.length,
+      totalVolume: volume,
+      exercises: Array.from(exerciseNames),
+      prCount: prs,
+    };
+  });
 }
